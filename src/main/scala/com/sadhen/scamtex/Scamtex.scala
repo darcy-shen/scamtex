@@ -3,8 +3,9 @@ package com.sadhen.scamtex
 import javax.swing._
 import java.awt.{List => _, _}
 import java.awt.event._
-import org.log4s._
 
+import com.sadhen.scamtex.edit.Editor
+import org.log4s._
 import com.sadhen.scamtex.kernel.{AtomicRep, CompoundRep, Tree}
 import com.sadhen.scamtex.kernel.TreeLabel._
 import com.sadhen.scamtex.typeset.Typesetter
@@ -13,7 +14,7 @@ class Scamtex extends JFrame {
   private[this] val logger = getLogger
 
   val document = Tree(CompoundRep(DOCUMENT))
-  val current = Tree(CompoundRep(CONCAT))
+  var current = Tree(CompoundRep(CONCAT), document)
   document += current
 
   println(document)
@@ -31,17 +32,24 @@ class Scamtex extends JFrame {
   addKeyListener(new KeyAdapter {
     override def keyPressed(evt: KeyEvent): Unit = evt.getKeyCode match {
       case KeyEvent.VK_LEFT =>
-        current.moveLeft()
+        Editor.moveLeft(current)
         logger.info(document.toString)
         repaint()
       case KeyEvent.VK_RIGHT =>
-        current.moveRight()
+        Editor.moveRight(current)
         repaint()
       case KeyEvent.VK_SHIFT =>
+      case KeyEvent.VK_DELETE =>
+      case KeyEvent.VK_BACK_SPACE =>
+        Editor.deleteLeft(current)
+        repaint()
+      case KeyEvent.VK_ENTER =>
+        current = Editor.newLine(current)
+        document += current
+        repaint()
       case _ =>
         val char = evt.getKeyChar
         current += Tree(AtomicRep(char.toString))
-        logger.info(document.toString)
         repaint()
     }
   })

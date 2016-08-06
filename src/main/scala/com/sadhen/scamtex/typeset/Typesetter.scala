@@ -4,6 +4,7 @@ import java.awt.{Color, Graphics, Graphics2D, Rectangle}
 
 import org.log4s._
 import com.sadhen.scamtex.kernel.{AtomicRep, CompoundRep, Tree}
+import com.sadhen.scamtex.kernel.TreeLabel.DOCUMENT
 
 /**
   * Created by sadhen on 8/5/16.
@@ -34,22 +35,30 @@ object Typesetter {
     var descent: Int = 0
     var h: Int = 0
     renderIter(document)
+    logger.info(s"x,y: ${px}, ${py}")
 
-    def renderIter(document: Tree): Unit = document.treeRep match {
-      case atomic: AtomicRep =>
-        graphics.setColor(Color.BLACK)
-        val rect = getStringBounds(graphics, atomic.content, px, py)
-        h = rect.getHeight.toInt
-        descent = h + rect.getY.toInt
-        graphics.drawString(atomic.content, px, py)
-        val w = graphics.getFontMetrics().stringWidth(atomic.content)
-        px = px + w
+    def renderIter(document: Tree): Unit = {
+      document.treeRep match {
+        case atomic: AtomicRep =>
+          graphics.setColor(Color.BLACK)
+          val rect = getStringBounds(graphics, atomic.content, px, py)
+          h = rect.getHeight.toInt
+          descent = h + rect.getY.toInt
+          graphics.drawString(atomic.content, px, py)
+          val w = graphics.getFontMetrics().stringWidth(atomic.content)
+          px = px + w
 
-      case compound: CompoundRep =>
-        compound.left.reverse.foreach(renderIter(_))
-        if (document.eq(current))
-          drawCursor(graphics, px, py+descent/2, h/2)
-        compound.right.foreach(renderIter(_))
+        case compound: CompoundRep =>
+          compound.left.reverse.foreach(renderIter(_))
+          if (document.eq(current))
+            drawCursor(graphics, px, py+descent/2, h/2)
+          compound.right.foreach(renderIter(_))
+      }
+      logger.info(document.toString)
+      if (document.parent!=null && document.parent.treeRep.label == DOCUMENT) {
+        px = 20
+        py = py + 30
+      }
     }
   }
 
