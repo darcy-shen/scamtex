@@ -3,11 +3,15 @@ package com.sadhen.scamtex
 import javax.swing._
 import java.awt.{List => _, _}
 import java.awt.event._
+import org.log4s._
 
 import com.sadhen.scamtex.kernel.{AtomicRep, CompoundRep, Tree}
 import com.sadhen.scamtex.kernel.TreeLabel._
+import com.sadhen.scamtex.typeset.Typesetter
 
 class Scamtex extends JFrame {
+  private[this] val logger = getLogger
+
   val document = Tree(CompoundRep(DOCUMENT, List()))
   val current = document
 
@@ -34,9 +38,11 @@ class Scamtex extends JFrame {
         repaint()
       case KeyEvent.VK_RIGHT =>
         repaint()
+      case KeyEvent.VK_SHIFT =>
       case _ =>
         val char = evt.getKeyChar
         current += Tree(AtomicRep(char.toString))
+        logger.info(document.toString)
         repaint()
     }
   })
@@ -48,11 +54,12 @@ class Scamtex extends JFrame {
   requestFocus()
 
   class DrawCanvas extends JPanel {
+
     override def paintComponent(g: Graphics) = {
       super.paintComponent(g)
       setBackground(CANVAS_BACKGROUND)
       g.setColor(LINE_COLOR)
-      g.drawLine(x1, y1, x2, y2)
+      Typesetter.render(document, g, 20, 20)
     }
   }
 }

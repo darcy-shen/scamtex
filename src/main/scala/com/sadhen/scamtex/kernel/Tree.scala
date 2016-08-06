@@ -11,7 +11,7 @@ class Tree(aTreeRep: TreeRep) {
 
   def +=(tree: Tree): Tree = {
     if (isCompound)
-      treeRep.asInstanceOf[CompoundRep].right = tree :: treeRep.asInstanceOf[CompoundRep].right
+      treeRep.asInstanceOf[CompoundRep].left = tree :: treeRep.asInstanceOf[CompoundRep].left
     this
   }
 
