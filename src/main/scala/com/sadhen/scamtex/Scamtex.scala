@@ -13,7 +13,8 @@ class Scamtex extends JFrame {
   private[this] val logger = getLogger
 
   val document = Tree(CompoundRep(DOCUMENT))
-  val current = document
+  val current = Tree(CompoundRep(CONCAT))
+  document += current
 
   println(document)
 
