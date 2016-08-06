@@ -15,6 +15,14 @@ class Tree(aTreeRep: TreeRep) {
     this
   }
 
+  def moveLeft() = {
+    isCompound && treeRep.asInstanceOf[CompoundRep].moveLeft()
+  }
+
+  def moveRight() = {
+    isCompound && treeRep.asInstanceOf[CompoundRep].moveRight()
+  }
+
   override def toString = treeRep.toString
 }
 
@@ -46,16 +54,36 @@ object AtomicRep {
   def apply(aContent: String) = new AtomicRep(STRING, aContent)
 }
 
-class CompoundRep(aLabel: TreeLabel, aList: List[Tree]) extends TreeRep {
+class CompoundRep(aLabel: TreeLabel) extends TreeRep {
   var left: List[Tree] = List()
-  var right: List[Tree] = aList
+  var right: List[Tree] = List()
   this.label = aLabel
+
+  def moveLeft() = {
+    if (left.isEmpty)
+      false
+    else {
+      right = left.head :: right
+      left = left.tail
+      true
+    }
+  }
+
+  def moveRight() = {
+    if (right.isEmpty)
+      false
+    else {
+      left = right.head :: left
+      right = right.tail
+      true
+    }
+  }
 
   override def toString = "(" + label.toString + " " + (left.reverse ::: right).mkString(" ")  + ")"
 }
 
 object CompoundRep {
-  def apply(aLabel: TreeLabel, aList: List[Tree]) = new CompoundRep(aLabel, aList)
+  def apply(aLabel: TreeLabel) = new CompoundRep(aLabel)
 }
 
 

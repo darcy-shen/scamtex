@@ -28,24 +28,27 @@ object Typesetter {
     preX = x; preY = y; preH = h
   }
 
-  def render(document: Tree, graphics: Graphics, x: Int, y: Int) {
+  def render(current: Tree, document: Tree, graphics: Graphics, x: Int, y: Int) {
     var px = x
     var py = y
+    var descent: Int = 0
+    var h: Int = 0
     renderIter(document)
 
     def renderIter(document: Tree): Unit = document.treeRep match {
       case atomic: AtomicRep =>
         graphics.setColor(Color.BLACK)
         val rect = getStringBounds(graphics, atomic.content, px, py)
-        val h = rect.getHeight.toInt
-        val descent = h + rect.getY.toInt
+        h = rect.getHeight.toInt
+        descent = h + rect.getY.toInt
         graphics.drawString(atomic.content, px, py)
         val w = graphics.getFontMetrics().stringWidth(atomic.content)
         px = px + w
-        drawCursor(graphics, px, py+descent/2, h/2)
 
       case compound: CompoundRep =>
         compound.left.reverse.foreach(renderIter(_))
+        if (document.eq(current))
+          drawCursor(graphics, px, py+descent/2, h/2)
         compound.right.foreach(renderIter(_))
     }
   }

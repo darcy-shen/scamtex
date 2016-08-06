@@ -12,7 +12,7 @@ import com.sadhen.scamtex.typeset.Typesetter
 class Scamtex extends JFrame {
   private[this] val logger = getLogger
 
-  val document = Tree(CompoundRep(DOCUMENT, List()))
+  val document = Tree(CompoundRep(DOCUMENT))
   val current = document
 
   println(document)
@@ -27,16 +27,14 @@ class Scamtex extends JFrame {
   cp.setLayout(new BorderLayout())
   cp.add(canvas, BorderLayout.CENTER)
 
-  var x1 = CANVAS_WIDTH/2
-  var y1 = CANVAS_HEIGHT/8
-  var x2 = x1
-  var y2 = CANVAS_HEIGHT/8*7
-
   addKeyListener(new KeyAdapter {
     override def keyPressed(evt: KeyEvent): Unit = evt.getKeyCode match {
       case KeyEvent.VK_LEFT =>
+        current.moveLeft()
+        logger.info(document.toString)
         repaint()
       case KeyEvent.VK_RIGHT =>
+        current.moveRight()
         repaint()
       case KeyEvent.VK_SHIFT =>
       case _ =>
@@ -59,7 +57,7 @@ class Scamtex extends JFrame {
       super.paintComponent(g)
       setBackground(CANVAS_BACKGROUND)
       g.setColor(LINE_COLOR)
-      Typesetter.render(document, g, 20, 20)
+      Typesetter.render(current, document, g, 20, 20)
     }
   }
 }
