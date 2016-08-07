@@ -41,7 +41,7 @@ class Scamtex extends JFrame {
       case KeyEvent.VK_SHIFT =>
       case KeyEvent.VK_DELETE =>
       case KeyEvent.VK_BACK_SPACE =>
-        Editor.deleteLeft(current)
+        current = Editor.deleteLeft(current)
         repaint()
       case KeyEvent.VK_ENTER =>
         current = Editor.newLine(current)

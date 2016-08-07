@@ -22,7 +22,15 @@ object Editor {
   }
 
   def deleteLeft(current: Tree) = {
-    current.treeRep.asInstanceOf[CompoundRep].deleteLeft()
+    val rep = current.treeRep.asInstanceOf[CompoundRep]
+    if (rep.deleteLeft() || current.previous.isEmpty)
+      current
+    else {
+      val newCurrent = current.previous.get
+      if (rep.isEmpty)
+        current.destroy
+      newCurrent
+    }
   }
 
   def newLine(current: Tree): Tree = {

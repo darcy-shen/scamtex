@@ -1,11 +1,13 @@
 package com.sadhen.scamtex.kernel
 
 import com.sadhen.scamtex.kernel.TreeLabel.{TreeLabel, STRING, DOCUMENT}
+import org.log4s._
 
 /**
   * Created by sadhen on 8/4/16.
   */
 class Tree(aTreeRep: TreeRep) {
+  private[this] val logger = getLogger
   var parent: Tree = _
   var treeRep: TreeRep = aTreeRep
   def isCompound = treeRep.isInstanceOf[CompoundRep]
@@ -33,7 +35,7 @@ class Tree(aTreeRep: TreeRep) {
         else
           Option(parent)
       } else {
-        while (!trees.tail.head.eq(this))
+        while (trees.tail.head.ne(this))
           trees =  trees.tail
         Option(trees.head)
       }
@@ -45,13 +47,21 @@ class Tree(aTreeRep: TreeRep) {
     else {
       val rep = parent.treeRep.asInstanceOf[CompoundRep]
       var trees = rep.left.reverse ::: rep.right
-      while (!trees.head.eq(this))
+      while (trees.head.ne(this))
         trees = trees.tail
       if (trees.tail.isEmpty)
         parent.next
       else
         Option(trees.tail.head)
     }
+
+  def destroy(): Unit = {
+    if (treeRep.label == DOCUMENT)
+      logger.error("Tree labeled by DOCUMENT cannot be dstroyed")
+    val rep = parent.treeRep.asInstanceOf[CompoundRep]
+    rep.left = rep.left.filter(_.ne(this))
+    rep.right = rep.right.filter(_.ne(this))
+  }
 
   override def toString = treeRep.toString
 }
@@ -129,6 +139,8 @@ class CompoundRep(aLabel: TreeLabel) extends TreeRep {
     right = List()
     ret
   }
+
+  def isEmpty = left.isEmpty && right.isEmpty
 
   override def toString = "(" + label.toString + " " + (left.reverse ::: right).mkString(" ")  + ")"
 }
