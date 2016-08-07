@@ -32,11 +32,11 @@ class Scamtex extends JFrame {
   addKeyListener(new KeyAdapter {
     override def keyPressed(evt: KeyEvent): Unit = evt.getKeyCode match {
       case KeyEvent.VK_LEFT =>
-        Editor.moveLeft(current)
+        current = Editor.moveLeft(current)
         logger.info(document.toString)
         repaint()
       case KeyEvent.VK_RIGHT =>
-        Editor.moveRight(current)
+        current = Editor.moveRight(current)
         repaint()
       case KeyEvent.VK_SHIFT =>
       case KeyEvent.VK_DELETE =>

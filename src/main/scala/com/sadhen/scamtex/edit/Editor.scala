@@ -8,11 +8,17 @@ import com.sadhen.scamtex.kernel.TreeLabel.CONCAT
   */
 object Editor {
   def moveLeft(current: Tree) = {
-    current.treeRep.asInstanceOf[CompoundRep].moveLeft()
+    if (current.treeRep.asInstanceOf[CompoundRep].moveLeft() || current.previous.isEmpty)
+      current
+    else
+      current.previous.get
   }
 
   def moveRight(current: Tree) = {
-    current.treeRep.asInstanceOf[CompoundRep].moveRight()
+    if (current.treeRep.asInstanceOf[CompoundRep].moveRight() || current.next.isEmpty)
+      current
+    else
+      current.next.get
   }
 
   def deleteLeft(current: Tree) = {

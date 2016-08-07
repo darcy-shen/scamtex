@@ -1,6 +1,6 @@
 package com.sadhen.scamtex.kernel
 
-import com.sadhen.scamtex.kernel.TreeLabel.{TreeLabel, STRING}
+import com.sadhen.scamtex.kernel.TreeLabel.{TreeLabel, STRING, DOCUMENT}
 
 /**
   * Created by sadhen on 8/4/16.
@@ -20,6 +20,38 @@ class Tree(aTreeRep: TreeRep) {
       treeRep.asInstanceOf[CompoundRep].left = tree :: treeRep.asInstanceOf[CompoundRep].left
     this
   }
+
+  def previous: Option[Tree] =
+    if (parent==null)
+      Option.empty
+    else {
+      val rep = parent.treeRep.asInstanceOf[CompoundRep]
+      var trees = rep.left.reverse ::: rep.right
+      if (trees.head.eq(this)) {
+        if (parent.treeRep.label == DOCUMENT)
+          Option.empty
+        else
+          Option(parent)
+      } else {
+        while (!trees.tail.head.eq(this))
+          trees =  trees.tail
+        Option(trees.head)
+      }
+    }
+
+  def next: Option[Tree] =
+    if (parent == null)
+      Option.empty
+    else {
+      val rep = parent.treeRep.asInstanceOf[CompoundRep]
+      var trees = rep.left.reverse ::: rep.right
+      while (!trees.head.eq(this))
+        trees = trees.tail
+      if (trees.tail.isEmpty)
+        parent.next
+      else
+        Option(trees.tail.head)
+    }
 
   override def toString = treeRep.toString
 }
@@ -111,6 +143,6 @@ object TreeLabel extends Enumeration {
   type TreeLabel = Value
   val DOCUMENT = Value("document")
   val PARA = Value
-  val CONCAT = Value
+  val CONCAT = Value("concat")
   val STRING = Value
 }

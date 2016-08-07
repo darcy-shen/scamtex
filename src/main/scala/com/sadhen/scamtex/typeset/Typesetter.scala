@@ -35,7 +35,6 @@ object Typesetter {
     var descent: Int = 0
     var h: Int = 0
     renderIter(document)
-    logger.info(s"x,y: ${px}, ${py}")
 
     def renderIter(document: Tree): Unit = {
       document.treeRep match {
@@ -54,7 +53,6 @@ object Typesetter {
             drawCursor(graphics, px, py+descent/2, h/2)
           compound.right.foreach(renderIter(_))
       }
-      logger.info(document.toString)
       if (document.parent!=null && document.parent.treeRep.label == DOCUMENT) {
         px = 20
         py = py + 30
