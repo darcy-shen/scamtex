@@ -1,80 +1,63 @@
 package com.sadhen.scamtex
 
-import javax.swing._
-import java.awt.{List => _, _}
-import java.awt.event._
-
-import com.sadhen.scamtex.edit.Editor
 import org.log4s._
+import com.sadhen.scamtex.edit.Editor
 import com.sadhen.scamtex.kernel.{AtomicRep, CompoundRep, Tree}
 import com.sadhen.scamtex.kernel.TreeLabel._
 import com.sadhen.scamtex.typeset.Typesetter
 
-class Scamtex extends JFrame {
-  private[this] val logger = getLogger
+import scalafx.application.JFXApp.PrimaryStage
+import scalafx.application.JFXApp
+import scalafx.scene.canvas.Canvas
+import scalafx.scene.input.{KeyCode, KeyEvent}
+import scalafx.scene.{Group, Scene}
+import scalafx.Includes._
+
+object Scamtex extends JFXApp {
+  def repaint(): Unit = {
+    gc.clearRect(0, 0, canvas.getWidth, canvas.getHeight)
+    Typesetter.render(current, document, gc, 20, 20)
+  }
+
+  private val logger = getLogger
 
   val document = Tree(CompoundRep(DOCUMENT))
   var current = Tree(CompoundRep(CONCAT), document)
   document += current
 
-  println(document)
 
-  val CANVAS_WIDTH = 640
-  val CANVAS_HEIGHT = 480
-  val LINE_COLOR = Color.BLACK
-  val CANVAS_BACKGROUND = Color.WHITE
-  val canvas = new DrawCanvas
-  canvas.setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT))
-  val cp = getContentPane
-  cp.setLayout(new BorderLayout())
-  cp.add(canvas, BorderLayout.CENTER)
-
-  addKeyListener(new KeyAdapter {
-    override def keyPressed(evt: KeyEvent): Unit = evt.getKeyCode match {
-      case KeyEvent.VK_LEFT =>
+  val canvas = new Canvas(640, 480)
+  val gc = canvas.getGraphicsContext2D
+  val group = new Group {
+    layoutX = 50
+    layoutY = 180
+    children = List(canvas)
+    onKeyPressed = (k: KeyEvent) => k.code match {
+      case KeyCode.Left =>
         current = Editor.moveLeft(current)
-        logger.info(document.toString)
         repaint()
-      case KeyEvent.VK_RIGHT =>
+      case KeyCode.Right =>
         current = Editor.moveRight(current)
         repaint()
-      case KeyEvent.VK_SHIFT =>
-      case KeyEvent.VK_DELETE =>
-      case KeyEvent.VK_BACK_SPACE =>
+      case KeyCode.BackSpace =>
         current = Editor.deleteLeft(current)
         repaint()
-      case KeyEvent.VK_ENTER =>
+      case KeyCode.Enter =>
         current = Editor.newLine(current)
         document += current
         repaint()
       case _ =>
-        val char = evt.getKeyChar
-        current += Tree(AtomicRep(char.toString))
+        val text = k.text
+        current += Tree(AtomicRep(text))
         repaint()
     }
-  })
-
-  setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
-  setTitle("ScamTeX")
-  pack()
-  setVisible(true)
-  requestFocus()
-
-  class DrawCanvas extends JPanel {
-
-    override def paintComponent(g: Graphics) = {
-      super.paintComponent(g)
-      setBackground(CANVAS_BACKGROUND)
-      g.setColor(LINE_COLOR)
-      Typesetter.render(current, document, g, 20, 20)
+  }
+  stage = new PrimaryStage {
+    title = "ScamTeX"
+    scene = new Scene {
+      content = group
     }
   }
-}
 
-object Scamtex extends App {
-  SwingUtilities.invokeLater(new Runnable {
-    override def run(): Unit = {
-      new Scamtex()
-    }
-  })
+  group.requestFocus()
 }

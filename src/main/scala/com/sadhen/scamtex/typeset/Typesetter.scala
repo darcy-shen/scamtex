@@ -1,10 +1,16 @@
 package com.sadhen.scamtex.typeset
 
-import java.awt.{Color, Graphics, Graphics2D, Rectangle}
+import javafx.scene.shape.Rectangle
 
 import org.log4s._
 import com.sadhen.scamtex.kernel.{AtomicRep, CompoundRep, Tree}
 import com.sadhen.scamtex.kernel.TreeLabel.DOCUMENT
+
+import javafx.geometry.Bounds
+import scalafx.scene.canvas.GraphicsContext
+import scalafx.scene.paint.Color
+import scalafx.scene.shape.Shape
+import scalafx.scene.text.Text
 
 /**
   * Created by sadhen on 8/5/16.
@@ -12,45 +18,47 @@ import com.sadhen.scamtex.kernel.TreeLabel.DOCUMENT
 object Typesetter {
   private val logger = getLogger
 
-  var preX: Int = _
-  var preY: Int = _
-  var preH: Int = 0
+  var preX: Double = _
+  var preY: Double = _
+  var preH: Double = 0
 
-  def drawCursor(graphics: Graphics, x: Int, y: Int, h: Int): Unit = {
-    def draw(x:Int, y:Int, h:Int, color: Color): Unit = {
-      graphics.setColor(color)
-      graphics.drawLine(x, y, x, y-h)
-      graphics.drawLine(x-1, y, x+1, y)
-      graphics.drawLine(x-1, y-h, x+1, y-h)
+  def drawCursor(gc: GraphicsContext, x: Double, y: Double, h: Double): Unit = {
+    def draw(x: Double, y: Double, h: Double, color: Color): Unit = {
+      gc.setStroke(color)
+      gc.strokeLine(x, y, x, y-h)
+      gc.strokeLine(x-1, y, x+1, y)
+      gc.strokeLine(x-1, y-h, x+1, y-h)
     }
     if (preH != 0)
-      draw(preX, preY, preH, Color.WHITE)
-    draw(x, y, h, Color.RED)
+      draw(preX, preY, preH, Color.White)
+    draw(x, y, h, Color.Red)
     preX = x; preY = y; preH = h
   }
 
-  def render(current: Tree, document: Tree, graphics: Graphics, x: Int, y: Int) {
+  def render(current: Tree, document: Tree, gc: GraphicsContext, x: Double, y: Double) {
     var px = x
     var py = y
-    var descent: Int = 0
-    var h: Int = 0
+    var descent: Double = 0
+    var height: Double = 0
     renderIter(document)
 
     def renderIter(document: Tree): Unit = {
       document.treeRep match {
         case atomic: AtomicRep =>
-          graphics.setColor(Color.BLACK)
-          val rect = getStringBounds(graphics, atomic.content, px, py)
-          h = rect.getHeight.toInt
-          descent = h + rect.getY.toInt
-          graphics.drawString(atomic.content, px, py)
-          val w = graphics.getFontMetrics().stringWidth(atomic.content)
-          px = px + w
+          gc.setFill(Color.Black)
+          //val rect = getStringBounds(graphics, atomic.content, px, py)
+          //h = rect.getHeight.toInt
+          //descent = h + rect.getY.toInt
+          gc.fillText(atomic.content, px, py)
+          val bounds = getStringBounds(atomic.content)
+          height = bounds.getHeight
+          descent = bounds.getMaxY
+          px = px + bounds.getWidth + 2
 
         case compound: CompoundRep =>
           compound.left.reverse.foreach(renderIter(_))
           if (document.eq(current))
-            drawCursor(graphics, px, py+descent/2, h/2)
+            drawCursor(gc, px, py+descent, height)
           compound.right.foreach(renderIter(_))
       }
       if (document.parent!=null && document.parent.treeRep.label == DOCUMENT) {
@@ -60,9 +68,11 @@ object Typesetter {
     }
   }
 
-  private def getStringBounds(graphics: Graphics, str: String, x: Int, y: Int): Rectangle = {
-    val frc = graphics.asInstanceOf[Graphics2D].getFontRenderContext
-    val gv = graphics.getFont.createGlyphVector(frc, str)
-    gv.getPixelBounds(null, 0, 0)
+  def getStringBounds(str: String): Bounds = {
+    val text = new Text(str)
+    val tb = text.getBoundsInLocal
+    val stencil = new Rectangle(tb.getMinX, tb.getMinY, tb.getWidth, tb.getHeight)
+    val intersection = Shape.intersect(text, stencil)
+    intersection.getBoundsInLocal
   }
 }
