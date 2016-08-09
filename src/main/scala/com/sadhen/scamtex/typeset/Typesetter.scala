@@ -1,11 +1,10 @@
 package com.sadhen.scamtex.typeset
 
-import javafx.scene.shape.Rectangle
-
-import org.log4s._
 import com.sadhen.scamtex.kernel.{AtomicRep, CompoundRep, Tree}
 import com.sadhen.scamtex.kernel.TreeLabel.DOCUMENT
 
+import org.log4s._
+import javafx.scene.shape.Rectangle
 import javafx.geometry.Bounds
 import scalafx.scene.canvas.GraphicsContext
 import scalafx.scene.paint.Color
@@ -46,14 +45,12 @@ object Typesetter {
       document.treeRep match {
         case atomic: AtomicRep =>
           gc.setFill(Color.Black)
-          //val rect = getStringBounds(graphics, atomic.content, px, py)
-          //h = rect.getHeight.toInt
-          //descent = h + rect.getY.toInt
           gc.fillText(atomic.content, px, py)
+          val actualBounds = getActualStringBounds(atomic.content)
           val bounds = getStringBounds(atomic.content)
-          height = bounds.getHeight
-          descent = bounds.getMaxY
-          px = px + bounds.getWidth + 2
+          height = actualBounds.getHeight
+          descent = actualBounds.getMaxY
+          px = px + bounds.getWidth.ceil
 
         case compound: CompoundRep =>
           compound.left.reverse.foreach(renderIter(_))
@@ -69,6 +66,11 @@ object Typesetter {
   }
 
   def getStringBounds(str: String): Bounds = {
+    val text = new Text(str)
+    text.getBoundsInLocal
+  }
+
+  def getActualStringBounds(str: String): Bounds = {
     val text = new Text(str)
     val tb = text.getBoundsInLocal
     val stencil = new Rectangle(tb.getMinX, tb.getMinY, tb.getWidth, tb.getHeight)
