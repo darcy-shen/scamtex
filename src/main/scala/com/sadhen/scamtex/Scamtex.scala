@@ -12,6 +12,7 @@ import scalafx.scene.canvas.Canvas
 import scalafx.scene.input.{KeyCode, KeyEvent}
 import scalafx.scene.{Group, Scene}
 import scalafx.Includes._
+import scalafx.scene.text.{Font}
 
 object Scamtex extends JFXApp {
   def repaint(): Unit = {
@@ -28,9 +29,11 @@ object Scamtex extends JFXApp {
 
   val canvas = new Canvas(640, 480)
   val gc = canvas.getGraphicsContext2D
+  val font = Font.font(gc.getFont.getFamily, 12)
+  gc.setFont(font)
   val group = new Group {
-    layoutX = 50
-    layoutY = 180
+    layoutX = 0
+    layoutY = 0
     children = List(canvas)
     onKeyPressed = (k: KeyEvent) => k.code match {
       case KeyCode.Left =>
@@ -52,11 +55,14 @@ object Scamtex extends JFXApp {
         repaint()
     }
   }
+
+  val scene0 = new Scene {
+    content = group
+  }
+
   stage = new PrimaryStage {
     title = "ScamTeX"
-    scene = new Scene {
-      content = group
-    }
+    scene = scene0
   }
 
   group.requestFocus()

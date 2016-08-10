@@ -50,7 +50,7 @@ object Typesetter {
           val bounds = getStringBounds(atomic.content)
           height = actualBounds.getHeight
           descent = actualBounds.getMaxY
-          px = px + bounds.getWidth.ceil
+          px = px + bounds.getWidth.floor
 
         case compound: CompoundRep =>
           compound.left.reverse.foreach(renderIter(_))
