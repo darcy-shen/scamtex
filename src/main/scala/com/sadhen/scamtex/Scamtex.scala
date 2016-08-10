@@ -45,6 +45,9 @@ object Scamtex extends JFXApp {
       case KeyCode.BackSpace =>
         current = Editor.deleteLeft(current)
         repaint()
+      case KeyCode.Delete =>
+        current = Editor.deleteRight(current)
+        repaint()
       case KeyCode.Enter =>
         current = Editor.newLine(current)
         document += current

@@ -28,7 +28,19 @@ object Editor {
     else {
       val newCurrent = current.previous.get
       if (rep.isEmpty)
-        current.destroy
+        current.destroy()
+      newCurrent
+    }
+  }
+
+  def deleteRight(current: Tree) = {
+    val rep = current.treeRep.asInstanceOf[CompoundRep]
+    if (rep.deleteRight() || current.next.isEmpty)
+      current
+    else {
+      val newCurrent = current.next.get
+      if (rep.isEmpty)
+        current.destroy()
       newCurrent
     }
   }

@@ -134,6 +134,15 @@ class CompoundRep(aLabel: TreeLabel) extends TreeRep {
     }
   }
 
+  def deleteRight() = {
+    if (right.isEmpty)
+      false
+    else {
+      right = right.tail
+      true
+    }
+  }
+
   def deleteRightAll() = {
     val ret = right
     right = List()
